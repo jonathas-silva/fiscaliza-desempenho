@@ -60,7 +60,7 @@ export default function Calculador() {
         <div className="d-flex principal flex-column container">
             <Row className='mt-4'>
                 <Col xs={4} sm={4}><button className='btn btn-secondary' onClick={() => resetar()}>Limpar</button></Col>
-                <Col xs={8} sm={8}><button className='btn btn-secondary' onClick={() => Setterminado(!terminado)}>Gerar Relatório</button></Col>
+                <Col xs={8} sm={8}><button className='btn btn-secondary' onClick={() => Setterminado(!terminado)}>Mostrar Relatório</button></Col>
             </Row>
 
             <div className="d-flex">

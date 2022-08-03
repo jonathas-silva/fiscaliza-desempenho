@@ -8,23 +8,27 @@ import pdfFonts from "pdfmake/build/vfs_fonts";
 //Por que ? Não sei \o/
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-var docDefinition : any= {
+var docDefinition: any = {
     content: [
         { text: 'Relatório de Fiscalização', style: 'header' },
-        'Agente: Fulano de tal \n matrícula: 1234',
-        {text: 'Linhas: ', style: 'subheader'}
+        { text: 'Agente: Fulano de tal \n matrícula: 1234', margin: [0, 0, 0, 10] }
     ],
     styles: {
         header: {
             fontSize: 18,
             bold: true,
             alignment: 'center',
-            margin: [0,0, 0, 20] //margem de 20 pra baixo
+            margin: [0, 0, 0, 20] //margem de 20 pra baixo
         },
         subheader: {
             fontSize: 14,
-            bold: true,
-            margin: [0, 15, 0, 0] //margem de 15 pra cima
+            bold: true
+        },
+        table: {
+            margin: [0, 10, 0, 5]
+        },
+        zeroMargin: {
+            margin: [0,0,0,0]
         }
 
     }
@@ -36,25 +40,44 @@ export default function Terminado() {
     const resultado: linha[] = relatorio();
 
     function gerarPDF() {
-        
-        
-         //já chama a função. Ponto
-        console.log("Resultado: ");
-        console.log(resultado);
-    
-        resultado.forEach(x=> (
-            docDefinition.content.push(`Linha ${x.linha}`)
-        ))
-        
-        
-        
-        
-        
-        
-        pdfMake.createPdf(docDefinition).open();
-        }
 
- 
+
+        //já chama a função. Ponto
+        console.log(JSON.stringify(resultado));
+
+        resultado.forEach(x => {
+
+            docDefinition.content.push({
+                margin: [0, 10, 0, 0], 
+                table: {
+                    widths: [150, 150],
+                    body: [
+                        [{ text: `Linha ${x.linha}`, colSpan: 2, alignment: 'center', style: 'subheader' }, {}],
+                        [{text: 'Prefixo', bold: true}, {text: 'Horário', bold: true}]
+                    ]
+
+                }
+            })
+            x.viagens.forEach(y => {
+                docDefinition.content.push({
+                    style: 'zeroMargin',
+                    table: {
+                        widths: [150, 150],
+                        body: [
+                            [
+                                {border: [true, false, true, true],text: `${y.prefixo}`},
+                                {border: [false, false, true, true],text: `${y.horario}`}
+                            ]
+                        ]
+
+                    }
+                })
+
+            })
+
+        })
+        pdfMake.createPdf(docDefinition).open();
+    }
 
 
     return (
@@ -71,7 +94,7 @@ export default function Terminado() {
                         <Row className="h5 bordas"><div>Linha {x.linha}</div></Row>
                         <div className="mb-2 border">
                             {
-                                
+
                                 x.viagens?.map(y => (
                                     <Row className=""><Col className="border-end">{y.prefixo}</Col><Col>{y.horario}</Col></Row>
                                 ))

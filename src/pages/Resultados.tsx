@@ -20,10 +20,7 @@ export default function Resultados() {
     }, [render])
 
     //os métodos abaixo serão colocados em um get no futuro
-    let resultados: resultado[] = new Array;
-    if (localStorage.hasOwnProperty("resultado")) {
-        resultados = JSON.parse(localStorage.getItem("resultado") || "");
-    }
+    let resultados: resultado[] = localizarResultados();
 
     const handleSubmit = (e: any) => {
         e.preventDefault();
@@ -36,12 +33,11 @@ export default function Resultados() {
 
 
     //Aqui faremos uma operação complexa de busca no array e troca do elemento em questão.
-    let resultado: resultado[] = localizarResultados();
-    let index:number = resultado.findIndex( (x) => x.linha===show.viagem.linha && x.horario===show.viagem.horario)
+    let index:number = resultados.findIndex( (x) => x.linha===show.viagem.linha && x.horario===show.viagem.horario)
     
 
-    resultado[index] = envio;
-    localStorage.setItem("resultado", JSON.stringify(resultado));
+    resultados[index] = envio;
+    localStorage.setItem("resultado", JSON.stringify(resultados));
 
     //atualizando a renderização da lista
     setRender(!render);
