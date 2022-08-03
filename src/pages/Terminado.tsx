@@ -28,7 +28,7 @@ var docDefinition: any = {
             margin: [0, 10, 0, 5]
         },
         zeroMargin: {
-            margin: [0,0,0,0]
+            margin: [0, 0, 0, 0]
         }
 
     }
@@ -41,38 +41,65 @@ export default function Terminado() {
 
     function gerarPDF() {
 
-
-        //já chama a função. Ponto
-        console.log(JSON.stringify(resultado));
-
         resultado.forEach(x => {
 
+            const viagens: number = x.viagens.length;
+            const intervalo_min = Math.min(...encontrarIntervalos(x.viagens));
+            const intervalo_max = Math.max(...encontrarIntervalos(x.viagens));
+            const intervalo_medio: number = encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length;
+
+            let frota_observada: number = -1;
+
+            //variável para guardar os números individuais da frota
+            let veiculos: number[] = [];
+            x.viagens.forEach(viagem => {
+                if (!veiculos.includes(viagem.prefixo)) {
+                    veiculos.push(viagem.prefixo);
+                }
+            }
+            )
+
+
+
+
+
+            /*             let diferenca = intervalo_medio - Math.floor(intervalo_medio); //achar as casas decimais
+                        let medio_string: string = '';
+                        if(diferenca == 0){
+                            medio_string = `${intervalo_medio.toString()}'`;
+                        }else{
+                            medio_string = `${Math.floor(intervalo_medio)}'${diferenca.toPrecision(2).toString()}''`
+                        } */
+
+
             docDefinition.content.push({
-                margin: [0, 10, 0, 0], 
+                margin: [0, 20, 0, 0],
                 table: {
-                    widths: [150, 150],
+                    widths: [175, 175],
                     body: [
                         [{ text: `Linha ${x.linha}`, colSpan: 2, alignment: 'center', style: 'subheader' }, {}],
-                        [{text: 'Prefixo', bold: true}, {text: 'Horário', bold: true}]
+                        [`Intervalo mínimo: ${intervalo_min} min`, `Intervalo máximo: ${intervalo_max} min`],
+                        [`Intervalo médio: ${Math.round(intervalo_medio)} min`, `Intervalo OS: `],
+                        [`Frota observada: ${veiculos.length} ${veiculos.length > 1 ? 'veículos' : 'veículo'}`, `Frota OS:`],
+                        [{ text: `${viagens} viagens observadas:`, colSpan: 2,italics: true, border: [false, true, false, false]}, {}],
+                        [{text: 'Horário', bold: true, color: 'gray', border:[false,false,false,false]}, {text: 'Prefixo', bold: true, color: 'gray', border:[false,false,false,false]}]
                     ]
 
                 }
-            })
-            x.viagens.forEach(y => {
+            }
+
+            )
+            x.viagens.forEach(y=>{
                 docDefinition.content.push({
-                    style: 'zeroMargin',
+                    margin: [5, 0, 0, 0],
                     table: {
-                        widths: [150, 150],
+                        widths: [175, 175],
                         body: [
-                            [
-                                {border: [true, false, true, true],text: `${y.prefixo}`},
-                                {border: [false, false, true, true],text: `${y.horario}`}
-                            ]
+                            [{text: `${y.horario}`, color: 'gray'}, {text: `${y.prefixo}`, color: 'gray'}]
                         ]
-
-                    }
+                    },
+                    layout: 'lightHorizontalLines'
                 })
-
             })
 
         })
