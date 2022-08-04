@@ -4,14 +4,30 @@ import { relatorio } from "../utils/put";
 import './Terminado.css';
 import pdfMake from "pdfmake/build/pdfMake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
+import { geradorDoc } from "../types/GeradorDoc";
 
 //Por que ? Não sei \o/
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 var docDefinition: any = {
     content: [
-        { text: 'Relatório de Fiscalização', style: 'header' },
-        { text: 'Agente: Fulano de tal \n matrícula: 1234', margin: [0, 0, 0, 10] }
+        {
+            text: 'Relatório de Fiscalização de Desempenho',
+            style: 'header',
+            alignment: 'center'
+        },
+        {
+            margin: [0, 0, 0, 10],
+            table: {
+                widths: ['*', '*', '*'],
+                body: [
+                    [{text: 'Agente(s): ', colSpan: 3}, {}, {}],
+                    [{text: 'Matrícula: ', colSpan: 2}, {}, 'Departamento: DOFT'],
+                    [{text: 'Local: ', colSpan: 3}, {}, {}],
+                    ['Clima: ', 'Horário:', 'Área:']
+                ]
+            }
+        }
     ],
     styles: {
         header: {
@@ -39,72 +55,7 @@ export default function Terminado() {
 
     const resultado: linha[] = relatorio();
 
-    function gerarPDF() {
 
-        resultado.forEach(x => {
-
-            const viagens: number = x.viagens.length;
-            const intervalo_min = Math.min(...encontrarIntervalos(x.viagens));
-            const intervalo_max = Math.max(...encontrarIntervalos(x.viagens));
-            const intervalo_medio: number = encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length;
-
-            let frota_observada: number = -1;
-
-            //variável para guardar os números individuais da frota
-            let veiculos: number[] = [];
-            x.viagens.forEach(viagem => {
-                if (!veiculos.includes(viagem.prefixo)) {
-                    veiculos.push(viagem.prefixo);
-                }
-            }
-            )
-
-
-
-
-
-            /*             let diferenca = intervalo_medio - Math.floor(intervalo_medio); //achar as casas decimais
-                        let medio_string: string = '';
-                        if(diferenca == 0){
-                            medio_string = `${intervalo_medio.toString()}'`;
-                        }else{
-                            medio_string = `${Math.floor(intervalo_medio)}'${diferenca.toPrecision(2).toString()}''`
-                        } */
-
-
-            docDefinition.content.push({
-                margin: [0, 20, 0, 0],
-                table: {
-                    widths: [175, 175],
-                    body: [
-                        [{ text: `Linha ${x.linha}`, colSpan: 2, alignment: 'center', style: 'subheader' }, {}],
-                        [`Intervalo mínimo: ${intervalo_min} min`, `Intervalo máximo: ${intervalo_max} min`],
-                        [`Intervalo médio: ${Math.round(intervalo_medio)} min`, `Intervalo OS: `],
-                        [`Frota observada: ${veiculos.length} ${veiculos.length > 1 ? 'veículos' : 'veículo'}`, `Frota OS:`],
-                        [{ text: `${viagens} viagens observadas:`, colSpan: 2,italics: true, border: [false, true, false, false]}, {}],
-                        [{text: 'Horário', bold: true, color: 'gray', border:[false,false,false,false]}, {text: 'Prefixo', bold: true, color: 'gray', border:[false,false,false,false]}]
-                    ]
-
-                }
-            }
-
-            )
-            x.viagens.forEach(y=>{
-                docDefinition.content.push({
-                    margin: [5, 0, 0, 0],
-                    table: {
-                        widths: [175, 175],
-                        body: [
-                            [{text: `${y.horario}`, color: 'gray'}, {text: `${y.prefixo}`, color: 'gray'}]
-                        ]
-                    },
-                    layout: 'lightHorizontalLines'
-                })
-            })
-
-        })
-        pdfMake.createPdf(docDefinition).open();
-    }
 
 
     return (
@@ -153,7 +104,7 @@ export default function Terminado() {
 
 
 
-            <button className="btn btn-primary" onClick={() => gerarPDF()}>Gerar PDF</button>
+            <button className="btn btn-primary" onClick={() => geradorDoc()}>Gerar PDF</button>
 
         </div>
 
