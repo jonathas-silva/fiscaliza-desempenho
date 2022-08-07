@@ -25,7 +25,6 @@ export default function Resultados() {
 
     const handleSubmit = (e: any) => {
 
-        console.log('here');
         e.preventDefault();
 
         const envio: resultado = {

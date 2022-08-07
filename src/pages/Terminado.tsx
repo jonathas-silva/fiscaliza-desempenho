@@ -28,8 +28,6 @@ const handleSubmit = (e: any) => {
         clima: (e.target as any).clima.value
     }
 
-    console.log(dadosAdicionais);
-
     geradorDoc(dadosAdicionais);
 }
 

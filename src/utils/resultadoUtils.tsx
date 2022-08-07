@@ -70,7 +70,6 @@ export function relatorio(): linha[] {
     //ordenando por ordem crescente de linha. Pra fazer graça
     linhasResultado.sort((a, b) => a.linha > b.linha ? 1 : -1);
 
-    //console.log(JSON.stringify(linhasResultado));
 
 
     return linhasResultado;
