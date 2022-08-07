@@ -1,10 +1,10 @@
 import pdfMake from "pdfmake/build/pdfMake";
-import pdfFonts from "pdfmake/build/vfs_fonts";
 import { encontrarIntervalos, relatorio } from "./resultadoUtils";
 import { infoOS, infoRelatorio, linha } from "../types/tipos";
 import { recuperarEntrada } from "./infosOS";
+import pdfFonts from "./fonts/vsf_fonts";
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+pdfMake.vfs = pdfFonts;
 
 
 

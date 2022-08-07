@@ -11,12 +11,12 @@ export default function Resultados() {
         prefixo: "",
         horario: ""
     }
-    
+
     const [excluir, setExluir] = useState(false);
-    const [show, setShow] = useState({ mostrar: false, viagem: viagem});
+    const [show, setShow] = useState({ mostrar: false, viagem: viagem });
     const [render, setRender] = useState(true);
 
-    useEffect(()=> {
+    useEffect(() => {
 
     }, [render])
 
@@ -31,27 +31,29 @@ export default function Resultados() {
         const envio: resultado = {
             linha: (e.target as any).linha.value,
             prefixo: (e.target as any).prefixo.value,
-            horario: (e.target as any).horario.value   
-    }
+            horario: (e.target as any).horario.value
+        }
 
 
-    //Aqui faremos uma operação complexa de busca no array e troca do elemento em questão.
-    let index:number = resultados.findIndex( (x) => x.linha===show.viagem.linha && x.horario===show.viagem.horario)
-    
-    if(excluir==true){
-        resultados.splice(index,1);
-        setShow({mostrar:false, viagem: viagem});
-        setExluir(false); //importante!!!
-    }else{
-        resultados[index] = envio;
-    }
+        //Aqui faremos uma operação complexa de busca no array e troca do elemento em questão.
+        let index: number = resultados.findIndex((x) => x.linha === show.viagem.linha && x.horario === show.viagem.horario)
 
-    
-    
-    localStorage.setItem("resultado", JSON.stringify(resultados));
+        if (excluir == true) {
+            if (confirm("tem certeza que deseja excluir esse registro?")) {
+                resultados.splice(index, 1);
+                setShow({ mostrar: false, viagem: viagem });
+                setExluir(false); //importante!!!
+            }
+        } else {
+            resultados[index] = envio;
+        }
 
-    //atualizando a renderização da lista
-    setRender(!render);
+
+
+        localStorage.setItem("resultado", JSON.stringify(resultados));
+
+        //atualizando a renderização da lista
+        setRender(!render);
 
     }
 
@@ -60,7 +62,7 @@ export default function Resultados() {
     return (
 
         <div className="resultados">
-            
+
             <Row className="fw-bold m-2 tabela">
                 <Col sm={3} xs={3}>Linha:</Col>
                 <Col sm={4} xs={4}>Prefixo:</Col>
@@ -92,17 +94,17 @@ export default function Resultados() {
                 <Modal.Body>
                     <form name="editarEntrada" onSubmit={handleSubmit}>
                         <label htmlFor="linha" className="form-label">Linha: </label>
-                        <input type="number" max={599} id="linha" className="form-control" defaultValue={show.viagem.linha}/>
+                        <input type="number" max={599} id="linha" className="form-control" defaultValue={show.viagem.linha} />
                         <label htmlFor="prefixo" className="form-label">Prefixo: </label>
                         <input type="number" max={9999} id="prefixo" className="form-control" defaultValue={show.viagem.prefixo} />
                         <label htmlFor="horario" className="form-label">Horário: </label>
                         <input type="time" id="horario" className="form-control" defaultValue={show.viagem.horario} />
-                        <button className="btn btn-primary mt-2" type="submit" onClick={() => setShow({ mostrar: false, viagem: {linha: show.viagem.linha, prefixo: show.viagem.prefixo, horario: show.viagem.horario} })}>Salvar</button>
+                        <button className="btn btn-primary mt-2" type="submit" onClick={() => setShow({ mostrar: false, viagem: { linha: show.viagem.linha, prefixo: show.viagem.prefixo, horario: show.viagem.horario } })}>Salvar</button>
                         <button className="btn btn-danger mt-2" onClick={() => setExluir(true)}>Excluir</button>
 
-                        </form>
+                    </form>
                 </Modal.Body>
-    
+
             </Modal>
 
 
