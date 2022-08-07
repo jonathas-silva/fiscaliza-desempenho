@@ -1,59 +1,69 @@
-import { Col, Row } from "react-bootstrap";
-import { linha, viagem } from "../types/tipos";
-import { relatorio } from "../utils/put";
+import { Col, Modal, Row, Stack } from "react-bootstrap";
+import { infoOS, infoRelatorio, linha, resultado, viagem } from "../types/tipos";
+import { localizarResultados, relatorio } from "../utils/put";
 import './Terminado.css';
 import pdfMake from "pdfmake/build/pdfMake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { geradorDoc } from "../types/GeradorDoc";
+import { useState } from "react";
+import { FiClipboard } from 'react-icons/fi';
+import { inserirInfos, localizarinfos, recuperarEntrada } from "../utils/infosOS";
 
 //Por que ? Não sei \o/
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-var docDefinition: any = {
-    content: [
-        {
-            text: 'Relatório de Fiscalização de Desempenho',
-            style: 'header',
-            alignment: 'center'
-        },
-        {
-            margin: [0, 0, 0, 10],
-            table: {
-                widths: ['*', '*', '*'],
-                body: [
-                    [{text: 'Agente(s): ', colSpan: 3}, {}, {}],
-                    [{text: 'Matrícula: ', colSpan: 2}, {}, 'Departamento: DOFT'],
-                    [{text: 'Local: ', colSpan: 3}, {}, {}],
-                    ['Clima: ', 'Horário:', 'Área:']
-                ]
-            }
-        }
-    ],
-    styles: {
-        header: {
-            fontSize: 18,
-            bold: true,
-            alignment: 'center',
-            margin: [0, 0, 0, 20] //margem de 20 pra baixo
-        },
-        subheader: {
-            fontSize: 14,
-            bold: true
-        },
-        table: {
-            margin: [0, 10, 0, 5]
-        },
-        zeroMargin: {
-            margin: [0, 0, 0, 0]
-        }
 
+
+
+
+
+const handleSubmit = (e: any) => {
+    e.preventDefault();
+
+    let dadosAdicionais: infoRelatorio = {
+        agente: (e.target as any).agente.value,
+        matricula: (e.target as any).matricula.value,
+        local: (e.target as any).local.value,
+        sentido: (e.target as any).sentido.value,
+        ponto: (e.target as any).ponto.value,
+        clima: (e.target as any).clima.value,
+        frotaOS: (e.target as any).frota.value,
+        IntervaloOS: (e.target as any).intervalo.value
     }
+
+    console.log(dadosAdicionais);
+
+    geradorDoc(dadosAdicionais);
 }
+
+
 
 
 export default function Terminado() {
 
+    const [show, setShow] = useState(false);
+    const [showConfig, setShowConfig] = useState({mostrar: false, linha: 0});
     const resultado: linha[] = relatorio();
+
+    const handleConfig = (e: any) => {
+        e.preventDefault();
+       
+        const intervaloOS = (e.target as any).intervalo.value;
+        const frotaOS = (e.target as any).frota.value;
+
+        inserirInfos({
+            linha: showConfig.linha,
+            frota: frotaOS,
+            intervalo: intervaloOS
+        })
+
+
+    }
+
+    
+
+
+    let linhas: string[] = JSON.parse(localStorage.getItem("linhas") || "");
 
 
 
@@ -61,7 +71,7 @@ export default function Terminado() {
     return (
         <div className="mt-4">
 
-
+            <div className="mb-3 badge bg-info">Clique sobre a linha para configurar informações.</div>
 
             {
                 resultado.map(x => (
@@ -69,8 +79,12 @@ export default function Terminado() {
 
 
                     <div className="text-center">
-                        <Row className="h5 bordas"><div>Linha {x.linha}</div></Row>
-                        <div className="mb-2 border">
+                        <button className="btn pb-0 btn-sm" onClick={() => setShowConfig({mostrar: true, linha: x.linha})}><div className="h5">Linha {x.linha} <FiClipboard /> </div></button>
+                        <div className="mb-1 border">
+
+
+
+
                             {
 
                                 x.viagens?.map(y => (
@@ -88,12 +102,12 @@ export default function Terminado() {
                                 (x.viagens.length == 1) ? <div className="text-warning">Sem dados suficientes para calcular as estatísticas</div> :
                                     <div>
                                         Viagens: {x.viagens.length} <br />
-                                        Intervalo mínimo: {Math.min(...encontrarIntervalos(x.viagens))} <br />
-                                        Intervalo máximo: {Math.max(...encontrarIntervalos(x.viagens))} <br />
+                                        Intervalo mínimo: {Math.min(...encontrarIntervalos(x.viagens))} minutos<br />
+                                        Intervalo máximo: {Math.max(...encontrarIntervalos(x.viagens))} minutos<br />
                                         Intervalo médio: {
-                                            encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length
+                                            Math.round(encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length)
 
-                                        }
+                                        } minutos
                                     </div>
                             }
 
@@ -104,12 +118,75 @@ export default function Terminado() {
 
 
 
-            <button className="btn btn-primary" onClick={() => geradorDoc()}>Gerar PDF</button>
+            <button className="btn btn-primary" onClick={() => setShow(true)}>Gerar PDF</button>
+
+            <Modal
+                show={showConfig.mostrar} onHide={() => setShowConfig({mostrar:false, linha: 0})}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Configurar Linha {showConfig.linha}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <form name="dadosAdicionais" onSubmit={handleConfig}>
+                        <input type="number" id="intervalo" className="form-control" defaultValue={recuperarEntrada(showConfig.linha)?.intervalo || ''}/>
+                        <label htmlFor="frota">Frota OS:</label>
+                        <input type="number" id="frota" className="form-control" defaultValue={recuperarEntrada(showConfig.linha)?.frota || ''}/>
+                        <button className="mt-2 btn btn-info" type="submit" onClick={() => setShowConfig({mostrar:false, linha: showConfig.linha})}>Salvar Informações</button>
+                    </form>
+                </Modal.Body>
+
+            </Modal>
+
+
+            <Modal
+                show={show} onHide={() => setShow(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Gerar Relatório</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="mb-2">Parar gerar o relatório, complete os dados abaixo:</div>
+                    <form name="dadosAdicionais" onSubmit={handleSubmit}>
+                        <label htmlFor="agente" className="">Agente:</label>
+                        <input type="text" id='agente' className="form-control mb-1" placeholder="Insira seu nome de guerra" />
+                        <label htmlFor="matricula" className="">Matrícula:</label>
+                        <input type="number" id='matricula' className="form-control mb-1" />
+                        <label htmlFor="local" className="">Endereço completo:</label>
+                        <input type="text" id='local' className="form-control mb-1" placeholder="Ex: Av das Amoreiras, 680" />
+                        <label htmlFor="ponto" className="">Nº do ponto:</label>
+                        <input type="number" id='ponto' className="form-control mb-1" />
+                        <label htmlFor="local" className="">Sentido:</label>
+                        <select id="sentido" className="form-select mb-1">
+                            <option value='CXB'>CXB</option>
+                            <option value='BXC'>BXC</option>
+                            <option value='Taquaral x Guarani'>Taquaral x Guarani</option>
+                            <option value='Guarani x Taquaral'>Guarani x Taquaral</option>
+                            <option value='Bosque x Carmona'>Bosque x Carmona</option>
+                            <option value='Carmona x Bosque'>Carmona x Bosque</option>
+                        </select>
+                        <label htmlFor="clima" className="">Clima:</label>
+                        <select id="clima" className="form-select mb-1">
+                            <option value='Ensolarado'>Ensolarado</option>
+                            <option value='Chuvoso'>Chuvoso</option>
+                            <option value='Nublado'>Nublado</option>
+                            <option value='Estável'>Estável</option>
+                        </select>
+
+                        <button className="btn btn-primary mt-2" onClick={() => setShow(false)}>Salvar</button>
+                    </form>
+                </Modal.Body>
+
+            </Modal>
+
+
+
 
         </div>
 
     )
 }
+
+
 
 function encontrarIntervalos(viagens: viagem[]): number[] {
 

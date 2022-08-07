@@ -1,27 +1,17 @@
 import pdfMake from "pdfmake/build/pdfMake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 import { encontrarIntervalos, relatorio } from "../utils/put";
-import { linha } from "./tipos";
+import { infoRelatorio, linha } from "./tipos";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 
 
-export function geradorDoc() {
-
-
-    
+export function geradorDoc(detalhes:infoRelatorio) {
 
 
 
-
-
-
-
-
-
-
-
+    const dia: Date = new Date();
 
     const resultado: linha[] = relatorio();
 
@@ -53,11 +43,11 @@ export function geradorDoc() {
                 { text: x.linha, border: [true, false, true, true], alignment: 'center' },
                 { text: viagens, alignment: 'center', border: [true, false, true, true] },
                 { text: veiculos.length, alignment: 'center', border: [true, false, true, true] },
-                { text: frotaOS, alignment: 'center', border: [true, false, true, true] },
+                { text: detalhes.frotaOS, alignment: 'center', border: [true, false, true, true] },
                 { text: `${intervalo_min}min`, alignment: 'center', border: [true, false, true, true] },
                 { text: `${intervalo_max}min`, alignment: 'center', border: [true, false, true, true] },
                 { text: `${Math.round(intervalo_medio)}min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${intervaloOS}min`, alignment: 'center', border: [true, false, true, true] }
+                { text: `${detalhes.IntervaloOS}min`, alignment: 'center', border: [true, false, true, true] }
             ]
 
         )
@@ -87,7 +77,7 @@ export function geradorDoc() {
     })
 
 
-
+//Inicio do documento
 
     var docDefinition: any = {
         info: {
@@ -102,14 +92,17 @@ export function geradorDoc() {
                 style: 'header',
                 alignment: 'center'
             },
+
+            //Cabeçalho
             {
                 margin: [0, 0, 0, 10],
                 table: {
                     widths: [115, 115, 115, 115],
                     body: [
-                        [{ text: 'Agente: ', colSpan: 3 }, {}, {}, { text: 'Matrícula: ' }],
-                        [{ text: 'Endereço:', colSpan: 3 }, {}, {}, 'Ponto nº:'],
-                        [{ text: 'Data: ', colSpan: 2 }, {}, { text: 'Clima: ', colSpan: 2 }, {}]
+                        [{ text: `Agente: ${detalhes.agente}`, colSpan: 3 }, {}, {}, { text: `Matrícula: ${detalhes.matricula}` }],
+                        [{ text: `Endereço: ${detalhes.local}`, colSpan: 4 }, {}, {}, {}],
+                        [{text: `Sentido: ${detalhes.sentido}`, colSpan:2}, {}, {text: `Ponto nº: ${detalhes.ponto}`, colSpan:2}, {}],
+                        [{ text: `Data: ${dia.toLocaleDateString()}`, colSpan: 2 }, {}, { text: `Clima: ${detalhes.clima}`, colSpan: 2 }, {}]
                     ]
                 }
             },
