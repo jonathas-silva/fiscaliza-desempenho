@@ -1,13 +1,13 @@
 import { Col, Modal, Row, Stack } from "react-bootstrap";
 import { infoOS, infoRelatorio, linha, resultado, viagem } from "../types/tipos";
-import { localizarResultados, relatorio } from "../utils/put";
+import { localizarResultados, relatorio } from "../utils/resultadoUtils";
 import './Terminado.css';
 import pdfMake from "pdfmake/build/pdfMake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import { geradorDoc } from "../types/GeradorDoc";
+import { geradorDoc } from "../utils/GeradorDoc";
 import { useState } from "react";
-import { FiClipboard } from 'react-icons/fi';
-import { inserirInfos, localizarinfos, recuperarEntrada } from "../utils/infosOS";
+import { MdBusAlert } from 'react-icons/md';
+import { inserirInfos, localizarIndice, recuperarEntrada } from "../utils/infosOS";
 
 //Por que ? Não sei \o/
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -20,15 +20,15 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 const handleSubmit = (e: any) => {
     e.preventDefault();
 
+
+
     let dadosAdicionais: infoRelatorio = {
         agente: (e.target as any).agente.value,
         matricula: (e.target as any).matricula.value,
         local: (e.target as any).local.value,
         sentido: (e.target as any).sentido.value,
         ponto: (e.target as any).ponto.value,
-        clima: (e.target as any).clima.value,
-        frotaOS: (e.target as any).frota.value,
-        IntervaloOS: (e.target as any).intervalo.value
+        clima: (e.target as any).clima.value
     }
 
     console.log(dadosAdicionais);
@@ -71,7 +71,7 @@ export default function Terminado() {
     return (
         <div className="mt-4">
 
-            <div className="mb-3 badge bg-info">Clique sobre a linha para configurar informações.</div>
+            <div className="mb-3 badge bg-info">Clique sobre a linha com <MdBusAlert /> para configurar informações de OS.</div>
 
             {
                 resultado.map(x => (
@@ -79,7 +79,8 @@ export default function Terminado() {
 
 
                     <div className="text-center">
-                        <button className="btn pb-0 btn-sm" onClick={() => setShowConfig({mostrar: true, linha: x.linha})}><div className="h5">Linha {x.linha} <FiClipboard /> </div></button>
+                        <button className="btn pb-0 btn-sm" onClick={() => setShowConfig({mostrar: true, linha: x.linha})}><div className="h5">
+                            Linha {x.linha} { (localizarIndice(x.linha))!=-1?'':<MdBusAlert />} </div></button>
                         <div className="mb-1 border">
 
 

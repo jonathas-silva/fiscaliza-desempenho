@@ -8,7 +8,7 @@ export function inserirInfos(informacoes: infoOS) {
     }
 
 
-    const indice: number = localizarinfos(informacoes);
+    const indice: number = localizarIndice(informacoes.linha);
 
 
     //se não tiver dá um push
@@ -25,14 +25,14 @@ export function inserirInfos(informacoes: infoOS) {
 
 //função que busca o index da info no array pela linha
 
-export function localizarinfos(informacoes: infoOS) {
+export function localizarIndice(linha: number) {
     //cria o array de infos
     let info: infoOS[] = new Array;
     if (localStorage.hasOwnProperty("info")) {
         info = JSON.parse(localStorage.getItem("info") || "");
     }
 
-    const index = info.map(obj => obj.linha).indexOf(informacoes.linha);
+    const index = info.map(obj => obj.linha).indexOf(linha);
 
     return index;
 }

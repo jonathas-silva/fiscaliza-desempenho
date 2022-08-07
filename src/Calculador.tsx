@@ -4,7 +4,7 @@ import './Calculator.css';
 import Resultados from './pages/Resultados';
 import Terminado from './pages/Terminado';
 import { resultado } from './types/tipos';
-import { put, relatorio} from './utils/put';
+import { put, relatorio} from './utils/resultadoUtils';
 
 export default function Calculador() {
 

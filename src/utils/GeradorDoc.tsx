@@ -1,7 +1,8 @@
 import pdfMake from "pdfmake/build/pdfMake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
-import { encontrarIntervalos, relatorio } from "../utils/put";
-import { infoRelatorio, linha } from "./tipos";
+import { encontrarIntervalos, relatorio } from "./resultadoUtils";
+import { infoOS, infoRelatorio, linha } from "../types/tipos";
+import { recuperarEntrada } from "./infosOS";
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -26,8 +27,11 @@ export function geradorDoc(detalhes:infoRelatorio) {
 
 
         //variáveis que serão recebidas pelo programa:
-        const frotaOS: number = -1;
-        const intervaloOS: number = -1;
+        const infoVazia: infoOS ={
+            linha: 0,
+            frota: 0,
+            intervalo: 0
+        }
 
         //variável para guardar os números individuais da frota
         let veiculos: number[] = [];
@@ -36,6 +40,8 @@ export function geradorDoc(detalhes:infoRelatorio) {
                 veiculos.push(viagem.prefixo);
             }
         })
+        
+        const infos = recuperarEntrada(x.linha) || infoVazia;
 
         body.push(
 
@@ -43,11 +49,11 @@ export function geradorDoc(detalhes:infoRelatorio) {
                 { text: x.linha, border: [true, false, true, true], alignment: 'center' },
                 { text: viagens, alignment: 'center', border: [true, false, true, true] },
                 { text: veiculos.length, alignment: 'center', border: [true, false, true, true] },
-                { text: detalhes.frotaOS, alignment: 'center', border: [true, false, true, true] },
+                { text: infos?.frota!=0?infos?.frota:'-', alignment: 'center', border: [true, false, true, true] },
                 { text: `${intervalo_min}min`, alignment: 'center', border: [true, false, true, true] },
                 { text: `${intervalo_max}min`, alignment: 'center', border: [true, false, true, true] },
                 { text: `${Math.round(intervalo_medio)}min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${detalhes.IntervaloOS}min`, alignment: 'center', border: [true, false, true, true] }
+                { text: infos?.intervalo!=0?`${infos?.intervalo}min`:'sem info', alignment: 'center', border: [true, false, true, true] }
             ]
 
         )
