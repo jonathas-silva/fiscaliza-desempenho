@@ -47,6 +47,8 @@ export default function Resultados() {
             resultados[index] = envio;
         }
 
+        //aqui estamos ordenando antes de re-renderizar
+        resultados.sort((a,b)=>a.horario>b.horario?1:-1);
 
 
         localStorage.setItem("resultado", JSON.stringify(resultados));
