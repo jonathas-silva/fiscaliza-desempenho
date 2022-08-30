@@ -7,11 +7,10 @@ import pdfFonts from "./fonts/vsf_fonts";
 pdfMake.vfs = pdfFonts;
 
 
-
-export function geradorDoc(detalhes:infoRelatorio) {
-
+export function geradorDoc(detalhes: infoRelatorio) {
 
 
+    const nome_agente = 'Jonathas';
     const dia: Date = new Date();
 
     const resultado: linha[] = relatorio();
@@ -20,6 +19,7 @@ export function geradorDoc(detalhes:infoRelatorio) {
 
     resultado.forEach(x => {
 
+
         const viagens: number = x.viagens.length;
         const intervalo_min: number = Math.min(...encontrarIntervalos(x.viagens));
         const intervalo_max = Math.max(...encontrarIntervalos(x.viagens));
@@ -27,7 +27,7 @@ export function geradorDoc(detalhes:infoRelatorio) {
 
 
         //variáveis que serão recebidas pelo programa:
-        const infoVazia: infoOS ={
+        const infoVazia: infoOS = {
             linha: 0,
             frota: 0,
             intervalo: 0
@@ -40,7 +40,7 @@ export function geradorDoc(detalhes:infoRelatorio) {
                 veiculos.push(viagem.prefixo);
             }
         })
-        
+
         const infos = recuperarEntrada(x.linha) || infoVazia;
 
         body.push(
@@ -49,11 +49,11 @@ export function geradorDoc(detalhes:infoRelatorio) {
                 { text: x.linha, border: [true, false, true, true], alignment: 'center' },
                 { text: viagens, alignment: 'center', border: [true, false, true, true] },
                 { text: veiculos.length, alignment: 'center', border: [true, false, true, true] },
-                { text: infos?.frota!=0?infos?.frota:'-', alignment: 'center', border: [true, false, true, true] },
-                { text: `${intervalo_min}min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${intervalo_max}min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${Math.round(intervalo_medio)}min`, alignment: 'center', border: [true, false, true, true] },
-                { text: infos?.intervalo!=0?`${infos?.intervalo}min`:'sem info', alignment: 'center', border: [true, false, true, true] }
+                { text: infos?.frota != 0 ? infos?.frota : { text: '-', color: 'red' }, alignment: 'center', border: [true, false, true, true] },
+                { text: `${intervalo_min} min`, alignment: 'center', border: [true, false, true, true] },
+                { text: `${intervalo_max} min`, alignment: 'center', border: [true, false, true, true] },
+                { text: `${Math.round(intervalo_medio)} min`, alignment: 'center', border: [true, false, true, true] },
+                { text: infos?.intervalo != 0 ? `${infos?.intervalo} min` : { text: 'sem info', color: 'red' }, alignment: 'center', border: [true, false, true, true] }
             ]
 
         )
@@ -64,9 +64,9 @@ export function geradorDoc(detalhes:infoRelatorio) {
 
     //criando o cabeçalho dessa tabela:
     viagensBody.push([
-        { text: 'Linha', alignment: 'center', bold: true, fillColor: '#FFF5EE'},
-        { text: 'Prefixo', alignment: 'center', bold: true,fillColor: '#FFF5EE' },
-        { text: 'Horário realizado', alignment: 'center', bold: true,fillColor: '#FFF5EE' }
+        { text: 'Linha', alignment: 'center', bold: true, fillColor: '#FFF5EE' },
+        { text: 'Prefixo', alignment: 'center', bold: true, fillColor: '#FFF5EE' },
+        { text: 'Horário realizado', alignment: 'center', bold: true, fillColor: '#FFF5EE' }
 
     ])
 
@@ -83,7 +83,7 @@ export function geradorDoc(detalhes:infoRelatorio) {
     })
 
 
-//Inicio do documento
+    //Inicio do documento
 
     var docDefinition: any = {
         info: {
@@ -91,7 +91,7 @@ export function geradorDoc(detalhes:infoRelatorio) {
             author: 'Jonathas Silva',
             subject: 'Relatório de Fiscalização preenchido dinamicamente',
             keywords: '',
-          },
+        },
         content: [
             {
                 text: 'Relatório de Desempenho',
@@ -105,9 +105,9 @@ export function geradorDoc(detalhes:infoRelatorio) {
                 table: {
                     widths: [115, 115, 115, 115],
                     body: [
-                        [{ text: `Agente: ${detalhes.agente}`, colSpan: 3 }, {}, {}, { text: `Matrícula: ${detalhes.matricula}` }],
+                        [{ text: ['Agente: ', { text: `${detalhes.agente}`, bold: false}], colSpan: 3 }, {}, {}, { text: `Matrícula: ${detalhes.matricula}` }],
                         [{ text: `Endereço: ${detalhes.local}`, colSpan: 4 }, {}, {}, {}],
-                        [{text: `Sentido: ${detalhes.sentido}`, colSpan:2}, {}, {text: `Ponto nº: ${detalhes.ponto}`, colSpan:2}, {}],
+                        [{ text: `Sentido: ${detalhes.sentido}`, colSpan: 2 }, {}, { text: `Ponto nº: ${detalhes.ponto}`, colSpan: 2 }, {}],
                         [{ text: `Data: ${dia.toLocaleDateString()}`, colSpan: 2 }, {}, { text: `Clima: ${detalhes.clima}`, colSpan: 2 }, {}]
                     ]
                 }
@@ -159,11 +159,13 @@ export function geradorDoc(detalhes:infoRelatorio) {
             {
                 alignment: 'justify',
                 columns: [
-                    {table: {
-                        widths: [100, 100, 100],
-                        headerRows: 1,
-                        body: viagensBody
-                    }}]
+                    {
+                        table: {
+                            widths: [100, 100, 100],
+                            headerRows: 1,
+                            body: viagensBody
+                        }
+                    }]
             }
 
         ],

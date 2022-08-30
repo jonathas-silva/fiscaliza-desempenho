@@ -87,12 +87,12 @@ export default function Terminado() {
             <div className="mb-3 badge bg-info">Clique sobre a linha com <MdBusAlert /> para configurar informações de OS.</div>
 
             {
-                resultado.map(x => (
+                resultado.map((x, index) => (
 
 
 
-                    <div className="text-center">
-                        <button className="btn pb-0 btn-sm" onClick={() => setShowConfig({ mostrar: true, linha: x.linha })}><div className="h5">
+                    <div key={index} className="text-center">
+                        <button  className="btn pb-0 btn-sm" onClick={() => setShowConfig({ mostrar: true, linha: x.linha })}><div className="h5">
                             Linha {x.linha} {(localizarIndice(x.linha)) != -1 ? '' : <MdBusAlert />} </div></button>
                         <div className="mb-1 border">
 
@@ -101,8 +101,8 @@ export default function Terminado() {
 
                             {
 
-                                x.viagens?.map(y => (
-                                    <Row className=""><Col className="border-end">{y.prefixo}</Col><Col>{y.horario}</Col></Row>
+                                x.viagens?.map((y, index) => (
+                                    <Row key={index} className=""><Col className="border-end">{y.prefixo}</Col><Col>{y.horario}</Col></Row>
                                 ))
                             }
 
