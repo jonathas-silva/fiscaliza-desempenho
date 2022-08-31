@@ -11,6 +11,11 @@ import {inserirInfos, localizarIndice, recuperarEntrada} from "../utils/infosOS"
 const handleSubmit = (e: any) => {
     e.preventDefault();
 
+    let dataString =  (e.target as any).dia.value + 'T00:00:00';
+
+    console.log(dataString);
+    let dataFormatada = new Date(dataString);
+    //console.log(dataFormatada.toLocaleDateString());
 
     let dadosAdicionais: infoRelatorio = {
         agente: (e.target as any).agente.value,
@@ -19,9 +24,10 @@ const handleSubmit = (e: any) => {
         sentido: (e.target as any).sentido.value,
         ponto: (e.target as any).ponto.value,
         clima: (e.target as any).clima.value,
-        data: (e.target as any).dia.value,
+        data: dataFormatada.toLocaleDateString()
     }
 
+    //console.log(dadosAdicionais);
     geradorDoc(dadosAdicionais);
 }
 
@@ -199,7 +205,7 @@ export default function Terminado() {
                             <option value='Estável'>Estável</option>
                         </select>
                         <label htmlFor="data" className="">Data do relatório:</label>
-                        <input type="date" id='ponto' defaultValue={hoje} className="form-control mb-1"/>
+                        <input type="date" id='dia' defaultValue={hoje} className="form-control mb-1"/>
 
                         <button className="btn btn-primary mt-2" onClick={() => setShow(false)}>Salvar</button>
                     </form>

@@ -12,7 +12,7 @@ export function geradorDoc(detalhes: infoRelatorio) {
 
 
     const nome_agente = 'Jonathas';
-    const dia: Date = new Date();
+    //const dia: Date = new Date();
 
     const resultado: linha[] = relatorio();
 
@@ -121,7 +121,7 @@ export function geradorDoc(detalhes: infoRelatorio) {
                             text: `Ponto nº: ${detalhes.ponto}`,
                             colSpan: 2
                         }, {}],
-                        [{text: `Data: ${dia.toLocaleDateString()}`, colSpan: 2}, {}, {
+                        [{text: `Data: ${detalhes.data}`, colSpan: 2}, {}, {
                             text: `Clima: ${detalhes.clima}`,
                             colSpan: 2
                         }, {}]
