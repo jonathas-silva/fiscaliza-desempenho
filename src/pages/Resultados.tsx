@@ -1,8 +1,8 @@
-import { Col, Modal, Row, Stack } from "react-bootstrap";
-import { resultado } from "../types/tipos";
+import {Col, Modal, Row, Stack} from "react-bootstrap";
+import {resultado} from "../types/tipos";
 import './Resultados.css';
-import { useEffect, useState } from "react";
-import { localizarResultados, put } from "../utils/resultadoUtils";
+import {useEffect, useState} from "react";
+import {localizarResultados} from "../utils/resultadoUtils";
 
 export default function Resultados() {
 
@@ -13,7 +13,7 @@ export default function Resultados() {
     }
 
     const [excluir, setExluir] = useState(false);
-    const [show, setShow] = useState({ mostrar: false, viagem: viagem });
+    const [show, setShow] = useState({mostrar: false, viagem: viagem});
     const [render, setRender] = useState(true);
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export default function Resultados() {
         if (excluir == true) {
             if (confirm("tem certeza que deseja excluir esse registro?")) {
                 resultados.splice(index, 1);
-                setShow({ mostrar: false, viagem: viagem });
+                setShow({mostrar: false, viagem: viagem});
                 setExluir(false); //importante!!!
             }
         } else {
@@ -48,7 +48,7 @@ export default function Resultados() {
         }
 
         //aqui estamos ordenando antes de re-renderizar
-        resultados.sort((a,b)=>a.horario>b.horario?1:-1);
+        resultados.sort((a, b) => a.horario > b.horario ? 1 : -1);
 
 
         localStorage.setItem("resultado", JSON.stringify(resultados));
@@ -57,7 +57,6 @@ export default function Resultados() {
         setRender(!render);
 
     }
-
 
 
     return (
@@ -73,7 +72,8 @@ export default function Resultados() {
                 resultados.map(
                     (x, index) => (
                         <Stack key={index}>
-                            <button className="btn btn-light border" onClick={() => setShow({ mostrar: true, viagem: x })}>
+                            <button className="btn btn-light border"
+                                    onClick={() => setShow({mostrar: true, viagem: x})}>
                                 <Row className="text-center" key={index}>
                                     <Col sm={3} xs={3}>{x.linha}</Col>
                                     <Col sm={3} xs={3}>{x.prefixo}</Col>
@@ -87,7 +87,7 @@ export default function Resultados() {
             }
 
             <Modal
-                show={show.mostrar} onHide={() => setShow({ mostrar: false, viagem: viagem })}>
+                show={show.mostrar} onHide={() => setShow({mostrar: false, viagem: viagem})}>
                 <Modal.Header closeButton>
                     <Modal.Title>Editar viagem</Modal.Title>
                 </Modal.Header>
@@ -95,12 +95,22 @@ export default function Resultados() {
                 <Modal.Body>
                     <form name="editarEntrada" onSubmit={handleSubmit}>
                         <label htmlFor="linha" className="form-label">Linha: </label>
-                        <input type="number" max={599} id="linha" className="form-control" defaultValue={show.viagem.linha} />
+                        <input type="number" max={599} id="linha" className="form-control"
+                               defaultValue={show.viagem.linha}/>
                         <label htmlFor="prefixo" className="form-label">Prefixo: </label>
-                        <input type="number" max={9999} id="prefixo" className="form-control" defaultValue={show.viagem.prefixo} />
+                        <input type="number" max={9999} id="prefixo" className="form-control"
+                               defaultValue={show.viagem.prefixo}/>
                         <label htmlFor="horario" className="form-label">Horário: </label>
-                        <input type="time" id="horario" className="form-control" defaultValue={show.viagem.horario} />
-                        <button className="btn btn-primary mt-2" type="submit" onClick={() => setShow({ mostrar: false, viagem: { linha: show.viagem.linha, prefixo: show.viagem.prefixo, horario: show.viagem.horario } })}>Salvar</button>
+                        <input type="time" id="horario" className="form-control" defaultValue={show.viagem.horario}/>
+                        <button className="btn btn-primary mt-2" type="submit" onClick={() => setShow({
+                            mostrar: false,
+                            viagem: {
+                                linha: show.viagem.linha,
+                                prefixo: show.viagem.prefixo,
+                                horario: show.viagem.horario
+                            }
+                        })}>Salvar
+                        </button>
                         <button className="btn btn-danger mt-2" onClick={() => setExluir(true)}>Excluir</button>
 
                     </form>
