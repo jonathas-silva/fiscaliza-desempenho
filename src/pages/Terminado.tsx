@@ -1,22 +1,17 @@
-import { Col, Modal, ModalFooter, Row, Stack } from "react-bootstrap";
-import { infoOS, infoRelatorio, linha, resultado, viagem } from "../types/tipos";
-import { localizarResultados, relatorio } from "../utils/resultadoUtils";
+import {Col, Modal, ModalFooter, Row, Stack} from "react-bootstrap";
+import {infoOS, infoRelatorio, linha, resultado, viagem} from "../types/tipos";
+import {localizarResultados, relatorio} from "../utils/resultadoUtils";
 import './Terminado.css';
 
-import { geradorDoc } from "../utils/GeradorDoc";
-import { useEffect, useState } from "react";
-import { MdBusAlert } from 'react-icons/md';
-import { inserirInfos, localizarIndice, recuperarEntrada } from "../utils/infosOS";
-
-
-
-
-
+import {geradorDoc} from "../utils/GeradorDoc";
+import {useEffect, useState} from "react";
+import {MdBusAlert} from 'react-icons/md';
+import {inserirInfos, localizarIndice, recuperarEntrada} from "../utils/infosOS";
+import {recuperarObservacoes, salvarObservacoes} from "../utils/observacoesUtils";
 
 
 const handleSubmit = (e: any) => {
     e.preventDefault();
-
 
 
     let dadosAdicionais: infoRelatorio = {
@@ -32,18 +27,17 @@ const handleSubmit = (e: any) => {
 }
 
 
-
-
 export default function Terminado() {
 
     const [show, setShow] = useState(false);
-    const [showConfig, setShowConfig] = useState({ mostrar: false, linha: 0 });
+    const [showObserv, setShowObserv] = useState(false);
+
+    const [showConfig, setShowConfig] = useState({mostrar: false, linha: 0});
     const [render, setRender] = useState(false);
 
     useEffect(() => {
 
     }, [render])
-
 
 
     const resultado: linha[] = relatorio();
@@ -73,36 +67,44 @@ export default function Terminado() {
         setRender(!render);
     }
 
+    const handleObserv = (e: any) => {
+        e.preventDefault();
 
+        const observacoes = (e.target as any).observacoes.value
+
+        salvarObservacoes(observacoes);
+
+    }
 
 
     let linhas: string[] = JSON.parse(localStorage.getItem("linhas") || "");
 
 
-
-
     return (
         <div className="mt-4">
 
-            <div className="mb-3 badge bg-info">Clique sobre a linha com <MdBusAlert /> para configurar informações de OS.</div>
+            <div className="mb-3 badge bg-info">Clique sobre a linha com <MdBusAlert/> para configurar informações de
+                OS.
+            </div>
 
             {
                 resultado.map((x, index) => (
 
 
-
                     <div key={index} className="text-center">
-                        <button  className="btn pb-0 btn-sm" onClick={() => setShowConfig({ mostrar: true, linha: x.linha })}><div className="h5">
-                            Linha {x.linha} {(localizarIndice(x.linha)) != -1 ? '' : <MdBusAlert />} </div></button>
+                        <button className="btn pb-0 btn-sm"
+                                onClick={() => setShowConfig({mostrar: true, linha: x.linha})}>
+                            <div className="h5">
+                                Linha {x.linha} {(localizarIndice(x.linha)) != -1 ? '' : <MdBusAlert/>} </div>
+                        </button>
                         <div className="mb-1 border">
-
-
 
 
                             {
 
                                 x.viagens?.map((y, index) => (
-                                    <Row key={index} className=""><Col className="border-end">{y.prefixo}</Col><Col>{y.horario}</Col></Row>
+                                    <Row key={index} className=""><Col
+                                        className="border-end">{y.prefixo}</Col><Col>{y.horario}</Col></Row>
                                 ))
                             }
 
@@ -110,18 +112,19 @@ export default function Terminado() {
                         </div>
 
 
-
                         <div className="mb-3 border text-start ps-2 pe-2">
                             {
-                                (x.viagens.length == 1) ? <div className="text-warning">Sem dados suficientes para calcular as estatísticas</div> :
+                                (x.viagens.length == 1) ?
+                                    <div className="text-warning">Sem dados suficientes para calcular as
+                                        estatísticas</div> :
                                     <div>
-                                        Viagens: {x.viagens.length} <br />
-                                        Intervalo mínimo: {Math.min(...encontrarIntervalos(x.viagens))} minutos<br />
-                                        Intervalo máximo: {Math.max(...encontrarIntervalos(x.viagens))} minutos<br />
+                                        Viagens: {x.viagens.length} <br/>
+                                        Intervalo mínimo: {Math.min(...encontrarIntervalos(x.viagens))} minutos<br/>
+                                        Intervalo máximo: {Math.max(...encontrarIntervalos(x.viagens))} minutos<br/>
                                         Intervalo médio: {
-                                            Math.round(encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length)
+                                        Math.round(encontrarIntervalos(x.viagens).reduce((a, b) => a + b, 0) / encontrarIntervalos(x.viagens).length)
 
-                                        } minutos
+                                    } minutos
                                     </div>
                             }
 
@@ -131,11 +134,13 @@ export default function Terminado() {
             }
 
 
-
-            <button className="btn btn-primary" onClick={() => setShow(true)}>Gerar PDF</button>
+            <div className="d-flex justify-content-between">
+                <button className="btn btn-primary" onClick={() => setShow(true)}>Gerar PDF</button>
+                <button className="btn btn-info" onClick={() => setShowObserv(true)}>Adicionar observações</button>
+            </div>
 
             <Modal
-                show={showConfig.mostrar} onHide={() => setShowConfig({ mostrar: false, linha: 0 })}
+                show={showConfig.mostrar} onHide={() => setShowConfig({mostrar: false, linha: 0})}
             >
                 <Modal.Header closeButton>
                     <Modal.Title>Configurar Linha {showConfig.linha}</Modal.Title>
@@ -143,15 +148,21 @@ export default function Terminado() {
                 <Modal.Body>
                     <form name="dadosAdicionais" onSubmit={handleConfig}>
                         <label htmlFor="frota">Intervalo OS (em minutos):</label>
-                        <input type="number" id="intervalo" className="form-control" defaultValue={recuperarEntrada(showConfig.linha)?.intervalo || ''} />
+                        <input type="number" id="intervalo" className="form-control"
+                               defaultValue={recuperarEntrada(showConfig.linha)?.intervalo || ''}/>
                         <label htmlFor="frota">Frota OS:</label>
-                        <input type="number" id="frota" className="form-control" defaultValue={recuperarEntrada(showConfig.linha)?.frota || ''} />
-                        <button className="mt-2 btn btn-info" type="submit" onClick={() => setShowConfig({ mostrar: false, linha: showConfig.linha })}>Salvar Informações</button>
+                        <input type="number" id="frota" className="form-control"
+                               defaultValue={recuperarEntrada(showConfig.linha)?.frota || ''}/>
+                        <button className="mt-2 btn btn-info" type="submit"
+                                onClick={() => setShowConfig({mostrar: false, linha: showConfig.linha})}>Salvar
+                            Informações
+                        </button>
                     </form>
                 </Modal.Body>
                 <Modal.Footer className="d-flex justify-content-start">
                     <div className="">
-                        <button className="btn btn-sm btn-dark" onClick={() => limparInfos()}>Limpar informações</button>
+                        <button className="btn btn-sm btn-dark" onClick={() => limparInfos()}>Limpar informações
+                        </button>
                     </div>
                 </Modal.Footer>
 
@@ -168,13 +179,15 @@ export default function Terminado() {
                     <div className="mb-2">Parar gerar o relatório, complete os dados abaixo:</div>
                     <form name="dadosAdicionais" onSubmit={handleSubmit}>
                         <label htmlFor="agente" className="">Agente:</label>
-                        <input type="text" id='agente' className="form-control mb-1" placeholder="Insira seu nome de guerra" />
+                        <input type="text" id='agente' className="form-control mb-1"
+                               placeholder="Insira seu nome de guerra"/>
                         <label htmlFor="matricula" className="">Matrícula:</label>
-                        <input type="number" id='matricula' className="form-control mb-1" />
+                        <input type="number" id='matricula' className="form-control mb-1"/>
                         <label htmlFor="local" className="">Endereço completo:</label>
-                        <input type="text" id='local' className="form-control mb-1" placeholder="Ex: Av das Amoreiras, 680" />
+                        <input type="text" id='local' className="form-control mb-1"
+                               placeholder="Ex: Av das Amoreiras, 680"/>
                         <label htmlFor="ponto" className="">Nº do ponto:</label>
-                        <input type="number" id='ponto' className="form-control mb-1" />
+                        <input type="number" id='ponto' className="form-control mb-1"/>
                         <label htmlFor="local" className="">Sentido:</label>
                         <select id="sentido" className="form-select mb-1">
                             <option value='CXB'>CXB</option>
@@ -198,14 +211,27 @@ export default function Terminado() {
 
             </Modal>
 
+            <Modal
+                show={showObserv} onHide={() => setShowObserv(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Observações</Modal.Title>
+                </Modal.Header>
 
+                <Modal.Body>
+                    <div className="mb-2">Insira ou altere suas observações sobre a fiscalização:</div>
+                    <form name="observacoes" onSubmit={handleObserv}>
+                        <textarea name="textObservacoes" id="observacoes" className="form-control" defaultValue={recuperarObservacoes()}></textarea>
+                        <button className="btn btn-primary mt-4" onClick={()=> setShowObserv(false)}>Salvar</button>
+                    </form>
+                </Modal.Body>
+
+            </Modal>
 
 
         </div>
 
     )
 }
-
 
 
 function encontrarIntervalos(viagens: viagem[]): number[] {

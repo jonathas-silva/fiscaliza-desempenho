@@ -31,3 +31,11 @@ export type infoRelatorio = {
     frotaOS?: number;
     IntervaloOS?: number;
 }
+
+export type fiscalizacao = {
+    descricao: string;
+    data: string;
+    hora: string;
+    resultados: resultado[];
+    observacoes?: string;
+}

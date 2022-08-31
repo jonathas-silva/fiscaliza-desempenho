@@ -1,6 +1,6 @@
 import { Col, Modal, Row, Stack } from "react-bootstrap";
-import { resultado } from "../types/tipos"
-import './Resultados.css'
+import { resultado } from "../types/tipos";
+import './Resultados.css';
 import { useEffect, useState } from "react";
 import { localizarResultados, put } from "../utils/resultadoUtils";
 
