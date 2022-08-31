@@ -1,13 +1,11 @@
-import {Col, Modal, ModalFooter, Row, Stack} from "react-bootstrap";
-import {infoOS, infoRelatorio, linha, resultado, viagem} from "../types/tipos";
-import {localizarResultados, relatorio} from "../utils/resultadoUtils";
+import {Col, Modal, Row} from "react-bootstrap";
+import {infoRelatorio, linha, viagem} from "../types/tipos";
+import {relatorio} from "../utils/resultadoUtils";
 import './Terminado.css';
-
 import {geradorDoc} from "../utils/GeradorDoc";
 import {useEffect, useState} from "react";
 import {MdBusAlert} from 'react-icons/md';
 import {inserirInfos, localizarIndice, recuperarEntrada} from "../utils/infosOS";
-import {recuperarObservacoes, salvarObservacoes} from "../utils/observacoesUtils";
 
 
 const handleSubmit = (e: any) => {
@@ -20,7 +18,8 @@ const handleSubmit = (e: any) => {
         local: (e.target as any).local.value,
         sentido: (e.target as any).sentido.value,
         ponto: (e.target as any).ponto.value,
-        clima: (e.target as any).clima.value
+        clima: (e.target as any).clima.value,
+        data: (e.target as any).dia.value,
     }
 
     geradorDoc(dadosAdicionais);
@@ -29,8 +28,13 @@ const handleSubmit = (e: any) => {
 
 export default function Terminado() {
 
+    let dia = new Date();
+
+    //adaptação para que a entrada da data tenha o formato esperado pelo tipo 'date'
+    let hoje = dia.toLocaleDateString("en-CA");
+
     const [show, setShow] = useState(false);
-    const [showObserv, setShowObserv] = useState(false);
+
 
     const [showConfig, setShowConfig] = useState({mostrar: false, linha: 0});
     const [render, setRender] = useState(false);
@@ -65,15 +69,6 @@ export default function Terminado() {
         })
 
         setRender(!render);
-    }
-
-    const handleObserv = (e: any) => {
-        e.preventDefault();
-
-        const observacoes = (e.target as any).observacoes.value
-
-        salvarObservacoes(observacoes);
-
     }
 
 
@@ -136,7 +131,6 @@ export default function Terminado() {
 
             <div className="d-flex justify-content-between">
                 <button className="btn btn-primary" onClick={() => setShow(true)}>Gerar PDF</button>
-                <button className="btn btn-info" onClick={() => setShowObserv(true)}>Adicionar observações</button>
             </div>
 
             <Modal
@@ -204,24 +198,10 @@ export default function Terminado() {
                             <option value='Nublado'>Nublado</option>
                             <option value='Estável'>Estável</option>
                         </select>
+                        <label htmlFor="data" className="">Data do relatório:</label>
+                        <input type="date" id='ponto' defaultValue={hoje} className="form-control mb-1"/>
 
                         <button className="btn btn-primary mt-2" onClick={() => setShow(false)}>Salvar</button>
-                    </form>
-                </Modal.Body>
-
-            </Modal>
-
-            <Modal
-                show={showObserv} onHide={() => setShowObserv(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Observações</Modal.Title>
-                </Modal.Header>
-
-                <Modal.Body>
-                    <div className="mb-2">Insira ou altere suas observações sobre a fiscalização:</div>
-                    <form name="observacoes" onSubmit={handleObserv}>
-                        <textarea name="textObservacoes" id="observacoes" className="form-control" defaultValue={recuperarObservacoes()}></textarea>
-                        <button className="btn btn-primary mt-4" onClick={()=> setShowObserv(false)}>Salvar</button>
                     </form>
                 </Modal.Body>
 
@@ -253,7 +233,7 @@ function encontrarIntervalos(viagens: viagem[]): number[] {
     //agora vamos criar um array de intervalos, que é o nosso foco real
     horarios.forEach((x, index) => {
         if (index === 0) {
-            ;
+
         } else {
             intervalos[index - 1] = horarios[index] - horarios[index - 1];
         }

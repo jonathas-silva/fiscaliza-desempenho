@@ -30,6 +30,7 @@ export type infoRelatorio = {
     clima: string;
     frotaOS?: number;
     IntervaloOS?: number;
+    data: string;
 }
 
 export type fiscalizacao = {

@@ -1,21 +1,21 @@
 import {useState} from 'react';
-import {Button, ButtonGroup, Col, Dropdown, ListGroup, Modal, Row} from 'react-bootstrap';
+import {Col, Dropdown, ListGroup, Modal, Row} from 'react-bootstrap';
 import './Header.css';
 import Resultados from './pages/Resultados';
 import Terminado from './pages/Terminado';
 import {fiscalizacao, resultado} from './types/tipos';
-import {carregarNuvem, localizarResultados, put, salvarNuvem} from './utils/resultadoUtils';
+import {localizarResultados, put, salvarNuvem} from './utils/resultadoUtils';
 import {ImDatabase} from "react-icons/im";
-import {recuperarObservacoes} from "./utils/observacoesUtils";
-import firebase from "firebase/compat";
+import {recuperarObservacoes, salvarObservacoes} from "./utils/observacoesUtils";
 import {initializeApp} from "firebase/app";
-import {addDoc, collection, Firestore, getDocs, getFirestore} from "firebase/firestore";
+import {collection, Firestore, getDocs, getFirestore} from "firebase/firestore";
 
 
 export default function Header() {
 
+    const [showObserv, setShowObserv] = useState(false);
     const [terminado, Setterminado] = useState(false);
-    const [showNuvem,setShowNuvem] = useState(false);
+    const [showNuvem, setShowNuvem] = useState(false);
     const [resultadoNuvem, setResultadoNuvem] = useState<any>();
 
     const valorInicial: resultado = {
@@ -64,9 +64,24 @@ export default function Header() {
         if (confirm("Isso apagará todos os dados da fiscalização. Deseja realmente continuar?")) {
             localStorage.removeItem("linhas");
             localStorage.removeItem("resultado");
+            localStorage.removeItem("observacoes");
             window.location.reload();
         }
     }
+
+
+    const carregarFiscalizacao = (indice: number) => {
+
+        if (confirm("Isso substitituirá os dados atuais pelos dados da nuvem. Tem certeza de que deseja continuar?")) {
+            //console.log(resultadoNuvem[indice].resultados);
+            localStorage.setItem("resultado", JSON.stringify(resultadoNuvem[indice].resultados));
+            localStorage.setItem("observacoes", resultadoNuvem[indice].observacoes);
+        }
+
+        setShowNuvem(false);
+
+    }
+
 
     const handleUpload = () => {
 
@@ -85,6 +100,15 @@ export default function Header() {
 
         //console.log(data);
         salvarNuvem(data);
+
+    }
+
+    const handleObserv = (e: any) => {
+        e.preventDefault();
+
+        const observacoes = (e.target as any).observacoes.value
+
+        salvarObservacoes(observacoes);
 
     }
 
@@ -107,11 +131,11 @@ export default function Header() {
             return resultadosLista;
         }
 
-        getResultados(db).then(response=>{
+        getResultados(db).then(response => {
             setResultadoNuvem(response);
             setShowNuvem(true);
             //console.log(resultadoNuvem);
-        }).catch(error=> alert(error));
+        }).catch(error => alert(error));
 
 
     }
@@ -141,11 +165,13 @@ export default function Header() {
                                     <Dropdown.Toggle variant="success" id="menu"><ImDatabase/></Dropdown.Toggle>
                                     <Dropdown.Menu>
                                         <Dropdown.Item onClick={() => handleUpload()}> Salvar </Dropdown.Item>
-                                        <Dropdown.Item onClick={()=> handleCarregar()} > Carregar </Dropdown.Item>
+                                        <Dropdown.Item onClick={() => handleCarregar()}> Carregar </Dropdown.Item>
                                         <Dropdown.Item onClick={() => resetar()}> Limpar </Dropdown.Item>
                                         <Dropdown.Divider/>
                                         <Dropdown.Item
                                             onClick={() => Setterminado(!terminado)}> {terminado ? "Ver fiscalização" : "Ver relatório"} </Dropdown.Item>
+                                        <Dropdown.Item onClick={() => setShowObserv(true)}> Ver
+                                            Observações </Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>
                             }
@@ -173,14 +199,34 @@ export default function Header() {
 
                             <ListGroup>
 
-                                <ListGroup.Item variant="primary" action>{index+1} - { x.descricao }</ListGroup.Item>
+                                <ListGroup.Item key={index} variant="primary" action
+                                                onClick={() => carregarFiscalizacao(index)}>{index + 1} - {x.descricao}</ListGroup.Item>
 
                             </ListGroup>
 
 
-
                         ))
                     }
+                </Modal.Body>
+
+            </Modal>
+
+            <Modal
+                show={showObserv} onHide={() => setShowObserv(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Observações</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <div className="mb-2">Insira ou altere suas observações sobre a fiscalização:</div>
+                    <div className="">
+                        <form name="observacoes" onSubmit={handleObserv}>
+                            <textarea name="textObservacoes" id="observacoes" className="form-control"
+                                      defaultValue={recuperarObservacoes()}></textarea>
+                            <button className="btn btn-primary mt-4" onClick={() => setShowObserv(false)}>Salvar
+                            </button>
+                        </form>
+                    </div>
                 </Modal.Body>
 
             </Modal>

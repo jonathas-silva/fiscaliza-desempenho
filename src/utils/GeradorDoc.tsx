@@ -1,8 +1,9 @@
 import pdfMake from "pdfmake/build/pdfMake";
-import { encontrarIntervalos, relatorio } from "./resultadoUtils";
-import { infoOS, infoRelatorio, linha } from "../types/tipos";
-import { recuperarEntrada } from "./infosOS";
+import {encontrarIntervalos, relatorio} from "./resultadoUtils";
+import {infoOS, infoRelatorio, linha} from "../types/tipos";
+import {recuperarEntrada} from "./infosOS";
 import pdfFonts from "./fonts/vsf_fonts";
+import {recuperarObservacoes} from "./observacoesUtils";
 
 pdfMake.vfs = pdfFonts;
 
@@ -44,18 +45,24 @@ export function geradorDoc(detalhes: infoRelatorio) {
         const infos = recuperarEntrada(x.linha) || infoVazia;
 
         body.push(
-
             [
-                { text: x.linha, border: [true, false, true, true], alignment: 'center' },
-                { text: viagens, alignment: 'center', border: [true, false, true, true] },
-                { text: veiculos.length, alignment: 'center', border: [true, false, true, true] },
-                { text: infos?.frota != 0 ? infos?.frota : { text: '-', color: 'red' }, alignment: 'center', border: [true, false, true, true] },
-                { text: `${intervalo_min} min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${intervalo_max} min`, alignment: 'center', border: [true, false, true, true] },
-                { text: `${Math.round(intervalo_medio)} min`, alignment: 'center', border: [true, false, true, true] },
-                { text: infos?.intervalo != 0 ? `${infos?.intervalo} min` : { text: 'sem info', color: 'red' }, alignment: 'center', border: [true, false, true, true] }
+                {text: x.linha, border: [true, false, true, true], alignment: 'center'},
+                {text: viagens, alignment: 'center', border: [true, false, true, true]},
+                {text: veiculos.length, alignment: 'center', border: [true, false, true, true]},
+                {
+                    text: infos?.frota != 0 ? infos?.frota : {text: '-', color: 'red'},
+                    alignment: 'center',
+                    border: [true, false, true, true]
+                },
+                {text: `${intervalo_min} min`, alignment: 'center', border: [true, false, true, true]},
+                {text: `${intervalo_max} min`, alignment: 'center', border: [true, false, true, true]},
+                {text: `${Math.round(intervalo_medio)} min`, alignment: 'center', border: [true, false, true, true]},
+                {
+                    text: infos?.intervalo != 0 ? `${infos?.intervalo} min` : {text: 'sem info', color: 'red'},
+                    alignment: 'center',
+                    border: [true, false, true, true]
+                }
             ]
-
         )
     })
 
@@ -64,9 +71,9 @@ export function geradorDoc(detalhes: infoRelatorio) {
 
     //criando o cabeçalho dessa tabela:
     viagensBody.push([
-        { text: 'Linha', alignment: 'center', bold: true, fillColor: '#FFF5EE' },
-        { text: 'Prefixo', alignment: 'center', bold: true, fillColor: '#FFF5EE' },
-        { text: 'Horário realizado', alignment: 'center', bold: true, fillColor: '#FFF5EE' }
+        {text: 'Linha', alignment: 'center', bold: true, fillColor: '#FFF5EE'},
+        {text: 'Prefixo', alignment: 'center', bold: true, fillColor: '#FFF5EE'},
+        {text: 'Horário realizado', alignment: 'center', bold: true, fillColor: '#FFF5EE'}
 
     ])
 
@@ -74,9 +81,9 @@ export function geradorDoc(detalhes: infoRelatorio) {
 
         x.viagens.forEach(y => {
             viagensBody.push([
-                { text: x.linha, alignment: 'center' },
-                { text: y.prefixo, alignment: 'center' },
-                { text: y.horario, alignment: 'center' }
+                {text: x.linha, alignment: 'center'},
+                {text: y.prefixo, alignment: 'center'},
+                {text: y.horario, alignment: 'center'}
             ])
         })
 
@@ -105,10 +112,19 @@ export function geradorDoc(detalhes: infoRelatorio) {
                 table: {
                     widths: [115, 115, 115, 115],
                     body: [
-                        [{ text: ['Agente: ', { text: `${detalhes.agente}`, bold: false}], colSpan: 3 }, {}, {}, { text: `Matrícula: ${detalhes.matricula}` }],
-                        [{ text: `Endereço: ${detalhes.local}`, colSpan: 4 }, {}, {}, {}],
-                        [{ text: `Sentido: ${detalhes.sentido}`, colSpan: 2 }, {}, { text: `Ponto nº: ${detalhes.ponto}`, colSpan: 2 }, {}],
-                        [{ text: `Data: ${dia.toLocaleDateString()}`, colSpan: 2 }, {}, { text: `Clima: ${detalhes.clima}`, colSpan: 2 }, {}]
+                        [{
+                            text: ['Agente: ', {text: `${detalhes.agente}`, bold: false}],
+                            colSpan: 3
+                        }, {}, {}, {text: `Matrícula: ${detalhes.matricula}`}],
+                        [{text: `Endereço: ${detalhes.local}`, colSpan: 4}, {}, {}, {}],
+                        [{text: `Sentido: ${detalhes.sentido}`, colSpan: 2}, {}, {
+                            text: `Ponto nº: ${detalhes.ponto}`,
+                            colSpan: 2
+                        }, {}],
+                        [{text: `Data: ${dia.toLocaleDateString()}`, colSpan: 2}, {}, {
+                            text: `Clima: ${detalhes.clima}`,
+                            colSpan: 2
+                        }, {}]
                     ]
                 }
             },
@@ -122,19 +138,25 @@ export function geradorDoc(detalhes: infoRelatorio) {
                     widths: [50, 55, 65, 35, 55, 55, 55, 55],
                     body: [
                         [
-                            { text: '', border: [false, false, false, false] },
-                            { text: '', border: [false, false, false, false] },
-                            { text: 'Frota', colSpan: 2, alignment: 'center', fillColor: '#eeeeff', bold: true }, {},
-                            { text: 'Intervalos', colSpan: 4, alignment: 'center', fillColor: '#eeffee', bold: true }, {}, {}, {}],
+                            {text: '', border: [false, false, false, false]},
+                            {text: '', border: [false, false, false, false]},
+                            {text: 'Frota', colSpan: 2, alignment: 'center', fillColor: '#eeeeff', bold: true}, {},
+                            {
+                                text: 'Intervalos',
+                                colSpan: 4,
+                                alignment: 'center',
+                                fillColor: '#eeffee',
+                                bold: true
+                            }, {}, {}, {}],
                         [
-                            { text: 'Linha', border: [true, true, true, true], alignment: 'center' },
-                            { text: 'Viagens', alignment: 'center' },
-                            { text: 'Observada', alignment: 'center', fillColor: '#eeeeff' },
-                            { text: 'OS', alignment: 'center', fillColor: '#eeeeff' },
-                            { text: 'Min.:', alignment: 'center', fillColor: '#eeffee' },
-                            { text: 'Máx: ', alignment: 'center', fillColor: '#eeffee' },
-                            { text: 'Méd.:', alignment: 'center', fillColor: '#eeffee' },
-                            { text: 'OS', alignment: 'center', fillColor: '#eeffee' }]
+                            {text: 'Linha', border: [true, true, true, true], alignment: 'center'},
+                            {text: 'Viagens', alignment: 'center'},
+                            {text: 'Observada', alignment: 'center', fillColor: '#eeeeff'},
+                            {text: 'OS', alignment: 'center', fillColor: '#eeeeff'},
+                            {text: 'Min.:', alignment: 'center', fillColor: '#eeffee'},
+                            {text: 'Máx: ', alignment: 'center', fillColor: '#eeffee'},
+                            {text: 'Méd.:', alignment: 'center', fillColor: '#eeffee'},
+                            {text: 'OS', alignment: 'center', fillColor: '#eeffee'}]
                     ]
                 },
 
@@ -145,6 +167,19 @@ export function geradorDoc(detalhes: infoRelatorio) {
                     widths: [50, 55, 65, 35, 55, 55, 55, 55],
                     body: body
                 }
+            },
+
+
+            //Aqui inserimos as observações somente se o tamanho do texto digitado for maior que 10
+            {
+                text: recuperarObservacoes().length > 10 ? "Observações do Agente" : "",
+                style: "subheader2",
+                margin: [0, 25, 0, 0]
+            },
+            {
+                text: recuperarObservacoes().length > 10 ? recuperarObservacoes() : "",
+                margin: [0, 0, 15, 0],
+                fontSize: 11
             },
             //inserindo uma quebra de página
             {
@@ -181,6 +216,10 @@ export function geradorDoc(detalhes: infoRelatorio) {
                 fontSize: 14,
                 bold: true
             },
+            subheader2: {
+                fontSize: 12,
+                bold: true
+            },
             table: {
                 margin: [0, 10, 0, 5]
             },
@@ -198,16 +237,6 @@ export function geradorDoc(detalhes: infoRelatorio) {
     }
 
     pdfMake.createPdf(docDefinition).open();
-
-
-
-
-
-
-
-
-
-
 
 
 }

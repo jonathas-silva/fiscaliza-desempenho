@@ -1,8 +1,6 @@
 import {fiscalizacao, linha, resultado, viagem} from "../types/tipos";
 import {initializeApp} from "firebase/app";
-import {addDoc, collection, Firestore, getDocs, getFirestore} from "firebase/firestore";
-import {useEffect, useState} from "react";
-import firebase from "firebase/compat";
+import {addDoc, collection, getFirestore} from "firebase/firestore";
 
 export function localizarResultados(): resultado[] {
 
@@ -36,35 +34,6 @@ export function salvarNuvem(dados: fiscalizacao) {
         console.log(error);
     });
 
-}
-
-export function carregarNuvem(): fiscalizacao[] {
-
-    const [resultados, setResultados] = useState<any>();
-
-    let retorno: fiscalizacao = {
-        data: "", descricao: "", hora: "", observacoes: "", resultados: []
-    }
-
-    const firebaseApp = initializeApp({
-        apiKey: "AIzaSyCrkZLQyEtBVgH64abl_B2KBwJ-oQU8st8",
-        authDomain: "fiscaliza-desempenho.firebaseapp.com",
-        projectId: "fiscaliza-desempenho",
-    });
-
-    const db = getFirestore(firebaseApp);
-
-    async function getResultados(db: Firestore) {
-        const resultadosCollection = collection(db, "fiscalizacoes");
-        const resutadosSnapshot = await getDocs(resultadosCollection);
-        const resultadosLista = resutadosSnapshot.docs.map(doc => doc.data());
-
-        return resultadosLista;
-    }
-
-    getResultados(db).then(response => setResultados(response));
-
-    return resultados;
 }
 
 
